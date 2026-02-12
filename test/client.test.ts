@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SmartHQClient } from '../api/ge-client'
+import { SmartHQClient } from '../src/api/ge-client'
 
 describe('smartHQClient', () => {
   let client: SmartHQClient
 
   beforeEach(() => {
     client = new SmartHQClient({
-      username: 'test@example.com',
-      password: 'test-password',
-      region: 'US',
+      clientId: 'test-client-id',
+      clientSecret: 'test-client-secret',
+      redirectUri: 'http://localhost:8888/callback',
       debug: false,
     })
   })
@@ -214,9 +214,9 @@ describe('smartHQClient', () => {
       }
 
       const integrationClient = new SmartHQClient({
-        username,
-        password,
-        region: 'US',
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        redirectUri: 'http://localhost:8888/callback',
         debug: false,
       })
 
@@ -234,17 +234,17 @@ describe('smartHQClient', () => {
       }
 
       const integrationClient = new SmartHQClient({
-        username,
-        password,
-        region: 'US',
+        clientId: 'test-client-id',
+        clientSecret: 'test-client-secret',
+        redirectUri: 'http://localhost:8888/callback',
         debug: false,
       })
 
       await integrationClient.authenticate()
       const response = await integrationClient.getDevices()
 
-      expect(response).toHaveProperty('items')
-      expect(Array.isArray(response.items)).toBe(true)
+      expect(response).toHaveProperty('devices')
+      expect(Array.isArray(response.devices)).toBe(true)
     })
   })
 })
