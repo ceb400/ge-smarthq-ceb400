@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2](https://github.com/homebridge-plugins/ge-smarthq/releases/tag/v1.0.2) (2026-04-08)
+
+## What's Changed
+- Added two additional fields (outcome, success) to type SendCommandSuccesResponse 
+
 ## [1.0.1](https://github.com/homebridge-plugins/ge-smarthq/releases/tag/v1.0.1) (2026-03-17)
 
 ## What's Changed
