@@ -4,8 +4,7 @@ about: Contribute to Plugin through Pull Request
 title: ''
 labels: 'enhancement'
 assignees:
-  - donavanbecker
-  - mantorok1
+  - ceb400
 ---
 
 **Is your enhancement related to a problem? Please describe.**

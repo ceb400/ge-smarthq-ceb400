@@ -990,7 +990,7 @@ export class SmartHQClient extends EventEmitter {
    * Set up ping/pong keep-alive (60 seconds)
    */
   private setupPingPong(): void {
-    console.log(`Setting up ping/pong keep-alive at ${PING_INTERVAL / 1000} seconds interval`)
+    //console.log(`Setting up ping/pong keep-alive at ${PING_INTERVAL / 1000} seconds interval`)
     if (!this.websocket) {
       return
     }
@@ -1008,7 +1008,7 @@ export class SmartHQClient extends EventEmitter {
         this.pongTimeout = setTimeout(() => {
           this.debug('Pong timeout - reconnecting')
           this.websocket?.close()
-        }, 25000)        // 25 seconds timeout for pong - originally set to 10 seconds, increased to 25 seconds to reduce false positives
+        }, 25000)
       }
     }, PING_INTERVAL)
   }
