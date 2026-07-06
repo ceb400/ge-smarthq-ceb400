@@ -68,7 +68,7 @@ import type {
 const API_BASE_URL = 'https://client.mysmarthq.com'
 const LOGIN_URL = 'https://accounts.brillion.geappliances.com'
 const TOKEN_STORE = 'smarthq.tokens.json'
-const PING_INTERVAL = 60000 // 60 seconds
+const PING_INTERVAL = 30000 // 30 seconds
 
 /**
  * GE SmartHQ API Client
@@ -458,6 +458,7 @@ export class SmartHQClient extends EventEmitter {
         request,
         { headers: await this.httpHeaders() },
       )
+      this.debug(`Command outcome: ${JSON.stringify(response.data.outcome)}`)
       return response.data
     } catch (error) {
       throw this.handleApiError('Failed to send command', error)
@@ -989,6 +990,7 @@ export class SmartHQClient extends EventEmitter {
    * Set up ping/pong keep-alive (60 seconds)
    */
   private setupPingPong(): void {
+    console.log(`Setting up ping/pong keep-alive at ${PING_INTERVAL / 1000} seconds interval`)
     if (!this.websocket) {
       return
     }
@@ -1006,7 +1008,7 @@ export class SmartHQClient extends EventEmitter {
         this.pongTimeout = setTimeout(() => {
           this.debug('Pong timeout - reconnecting')
           this.websocket?.close()
-        }, 10000)
+        }, 25000)        // 25 seconds timeout for pong - originally set to 10 seconds, increased to 25 seconds to reduce false positives
       }
     }, PING_INTERVAL)
   }

@@ -1,8 +1,8 @@
 {
-  "name": "ge-smarthq",
+  "name": "ge-smarthq-api",
   "version": "1.0.1",
   "type": "module",
-  "description": "GE SmartHQ appliances module",
+  "description": "GE SmartHQ Digital Twin API module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "publishConfig": {
@@ -35,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/homebridge-plugins/ge-smarthq.git"
+    "url": "git+https://github.com/ceb400/ge-smarthq-ceb400.git"
   },
   "keywords": [
     "ge",
@@ -45,9 +45,9 @@
   "author": "Homebridge Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/homebridge-plugins/ge-smarthq/issues"
+    "url": "https://github.com/ceb400/ge-smarthq-ceb400/issues"
   },
-  "homepage": "https://github.com/homebridge-plugins/ge-smarthq#readme",
+  "homepage": "https://github.com/ceb400/ge-smarthq-ceb400#readme",
   "engines": {
     "node": "^20 || ^22 || ^24"
   },

@@ -1,5 +1,8 @@
 # GE SmartHQ API Client
 
+(Temporary fork of the ge-smarthq package created by Donavan Becker.
+)
+
 A TypeScript library for interacting with the **GE SmartHQ Digital Twin API v2**. Supports device discovery, real-time monitoring via WebSocket, command execution, and alert/presence tracking.
 
 ## Features
@@ -15,13 +18,13 @@ A TypeScript library for interacting with the **GE SmartHQ Digital Twin API v2**
 ## Installation
 
 ```bash
-npm install ge-smarthq
+npm install ge-smarthq-api
 ```
 
 Or with Yarn:
 
 ```bash
-yarn add ge-smarthq
+yarn add ge-smarthq-api
 ```
 
 ## Requirements
@@ -47,7 +50,7 @@ SMARTHQ_OAUTH2_CLIENT_SECRET=your_client_secret_here
 ### Basic Usage
 
 ```typescript
-import { SmartHQClient } from 'ge-smarthq';
+import { SmartHQClient } from 'ge-smarthq-api';
 
 // Create client instance
 this.client = new SmartHQClient(
@@ -332,7 +335,7 @@ example config.schema.json ----
   - The localhost server to handle the redirect is started internally so no extra action is required
 
 ```typescript
-import { SmartHQClient } from 'ge-smarthq';
+import { SmartHQClient } from 'ge-smarthq-api';
 
 export class SmartHQPlatform implements DynamicPlatformPlugin {
   private client: SmartHQClient;
@@ -375,4 +378,4 @@ MIT © 2024-2026 Homebridge Plugins
 
 ## Support
 
-For issues, feature requests, or questions, please visit [GitHub Issues](https://github.com/homebridge-plugins/ge-smarthq/issues).
+For issues, feature requests, or questions, please visit [GitHub Issues](https://github.com/ceb400/ge-smarthq-ceb400/issues).

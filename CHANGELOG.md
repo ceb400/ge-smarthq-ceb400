@@ -2,25 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.1](https://github.com/homebridge-plugins/ge-smarthq/releases/tag/v1.0.1) (2026-03-17)
+## [1.0.1](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.0.1) (2026-03-17)
 
 ## What's Changed
 * No notable changes
 
-**Full Changelog**: https://github.com/homebridge-plugins/ge-smarthq/compare/...v1.0.1
+**Full Changelog**: https://github.com/ceb400/ge-smarthq-ceb400/compare/...v1.0.1
 
-## [1.0.1](https://github.com/homebridge-plugins/ge-smarthq/releases/tag/v1.0.1) (2026-03-14)
+## [1.0.1](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.0.1) (2026-03-14)
 
 ## What's Changed
 * No notable changes
 
-**Full Changelog**: https://github.com/homebridge-plugins/ge-smarthq/compare/...v1.0.1
+**Full Changelog**: https://github.com/ceb400/ge-smarthq-ceb400/compare/...v1.0.1
 
 ## 1.0.1 (2026-03-14)
 
 ## 1.0.1 (2026-03-14)
 
-## [1.0.1](https://github.com/homebridge-plugins/ge-smarthq/releases/tag/v1.0.1) (2026-03-14)
+## [1.0.1](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.0.1) (2026-03-14)
 
 ## What's Changed
 - OAuth2 initial authentication process for Digital Twin API
@@ -32,9 +32,9 @@ All notable changes to this project will be documented in this file.
 - Add requirement for initial setup of SmartHQ account in order to use Digital Twin API
 
 
-**Full Changelog**: https://github.com/homebridge-plugins/ge-smarthq/compare/...v1.0.1
+**Full Changelog**: https://github.com/ceb400/ge-smarthq-ceb400/compare/...v1.0.1
 
-## [1.0.0](https://github.com/homebridge-plugins/ge-smarthq/releases/tag/v1.0.0) (2026-02-11)
+## [1.0.0](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.0.0) (2026-02-11)
 
 ## What's Changed
 - Initial release of GE SmartHQ API client library
@@ -59,5 +59,5 @@ All notable changes to this project will be documented in this file.
 - Full API documentation and examples
 - Homebridge integration guide
 
-**Full Changelog**: https://github.com/homebridge-plugins/ge-smarthq/compare/...v1.0.0
+**Full Changelog**: https://github.com/ceb400/ge-smarthq-ceb400/compare/...v1.0.0
 

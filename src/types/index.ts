@@ -223,6 +223,8 @@ export interface SendCommandRequest {
 }
 
 export interface SendCommandSuccessResponse {
+  success: boolean
+  outcome: string
   correlationId: string
   timestamp: string
 }
