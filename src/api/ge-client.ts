@@ -990,7 +990,6 @@ export class SmartHQClient extends EventEmitter {
    * Set up ping/pong keep-alive (60 seconds)
    */
   private setupPingPong(): void {
-    //console.log(`Setting up ping/pong keep-alive at ${PING_INTERVAL / 1000} seconds interval`)
     if (!this.websocket) {
       return
     }
