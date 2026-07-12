@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.1.0) (2026-07-11)
+
+## What's Changed
+* Handle offline (loss of internet) with exponential retry logic for auth token and for web socket auth token.
+* to prevent plugin failures.
+
 ## [1.0.1](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.0.1) (2026-03-17)
 
 ## What's Changed
