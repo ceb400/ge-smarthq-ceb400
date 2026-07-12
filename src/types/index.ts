@@ -568,6 +568,7 @@ export type SmartHQClientEventType
     | 'disconnected'
     | 'reconnecting'
     | 'token_refreshed'
+    | 'offline'
     | 'error'
     | 'service_update'
     | 'device_event'

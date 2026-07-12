@@ -94,6 +94,62 @@ describe('smartHQClient', () => {
     it('should not be connected initially', () => {
       expect(client.isConnected()).toBe(false)
     })
+
+    it('should retry websocket reconnects with exponential backoff', async () => {
+      vi.useFakeTimers()
+
+      const listener = vi.fn()
+      client.on('reconnecting', listener)
+
+      const refreshSpy = vi.spyOn(client as any, 'refreshAccessToken').mockResolvedValue(undefined)
+      const connectSpy = vi.spyOn(client as any, 'connect').mockRejectedValueOnce(new Error('Network Error')).mockResolvedValueOnce(undefined)
+
+      ;(client as any).attemptReconnect()
+
+      expect(listener).toHaveBeenCalledWith(expect.objectContaining({ attempt: 1, delay: 5000 }))
+
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(refreshSpy).toHaveBeenCalledTimes(1)
+      expect(connectSpy).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(15000)
+      expect(connectSpy).toHaveBeenCalledTimes(2)
+
+      vi.useRealTimers()
+    })
+
+    it('should retry token requests with exponential backoff when the network is unavailable', async () => {
+      vi.useFakeTimers()
+
+      const listener = vi.fn()
+      client.on('offline', listener)
+
+      const offlineError = Object.assign(new Error('Network Error'), { code: 'ERR_NETWORK' })
+      const postSpy = vi.spyOn(client.httpClient, 'post')
+        .mockRejectedValueOnce(offlineError)
+        .mockResolvedValueOnce({
+          data: {
+            access_token: 'access-token',
+            refresh_token: 'refresh-token',
+            expires_in: 3600,
+          },
+        } as never)
+
+      const tokenPromise = client['getAccessToken']({
+        grant_type: 'refresh_token',
+        client_id: 'test-client-id',
+        client_secret: 'test-client-secret',
+        refresh_token: 'test-refresh-token',
+      })
+
+      await vi.advanceTimersByTimeAsync(5000)
+      await expect(tokenPromise).resolves.toBeUndefined()
+
+      expect(postSpy).toHaveBeenCalledTimes(2)
+      expect(listener).toHaveBeenCalled()
+
+      vi.useRealTimers()
+    })
   })
 
   describe('device operations', () => {

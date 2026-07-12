@@ -83,6 +83,8 @@ export class SmartHQClient extends EventEmitter {
   private config: SmartHQConfig
   public httpClient: AxiosInstance
   public websocket: WebSocket | null = null
+  private readonly retryDelays = [5000, 10000, 20000, 40000]
+  private readonly maxRetryAttempts = 4
   private devices: Map<string, Device> = new Map()
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
@@ -224,18 +226,19 @@ export class SmartHQClient extends EventEmitter {
 
   //* ======================================================================================
   async getAccessToken(requestBody: Record<string, string>) {
-    try {
-      const response = await this.httpClient.post(
-        `${LOGIN_URL}/oauth2/token`,
-        stringify(requestBody),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-      )
+    return this.executeWithRetry(
+      async () => {
+        const response = await this.httpClient.post(
+          `${LOGIN_URL}/oauth2/token`,
+          stringify(requestBody),
+          { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+        )
 
-      this.saveToken(response.data)
-    } catch (error) {
-      console.error(chalk.blue(`[${new Date().toLocaleString('en-US')}] [SmarthqClient] Error caught in getAccessToken:`, error))
-      throw await this.handleApiError('Failed to get access token', error)
-    }
+        this.saveToken(response.data)
+      },
+      'Failed to get access token',
+      0,
+    )
   }
 
   saveToken(data: AxiosResponse['data']) {
@@ -1078,7 +1081,7 @@ export class SmartHQClient extends EventEmitter {
     }
 
     this.reconnectAttempts++
-    const delay = Math.min(1000 * 2 ** (this.reconnectAttempts - 1), 30000)
+    const delay = this.retryDelays[Math.min(this.reconnectAttempts - 1, this.retryDelays.length - 1)]
 
     this.emit('reconnecting', {
       attempt: this.reconnectAttempts,
@@ -1092,6 +1095,13 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         await this.connect()
       } catch (error) {
+        if (this.isOfflineError(error) && this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.emitOfflineEvent(new Error('WebSocket offline. Retrying with backoff...'))
+          await new Promise(resolve => setTimeout(resolve, delay))
+          await this.attemptReconnect()
+          return
+        }
+
         this.emit('error', new Error(`Reconnection failed: ${error}`))
       }
     }, delay)
@@ -1123,7 +1133,66 @@ export class SmartHQClient extends EventEmitter {
   /**
    * Handle API errors with consistent formatting
    */
+  private isOfflineError(error: unknown): boolean {
+    if (axios.isAxiosError(error)) {
+      const code = error.code?.toLowerCase() ?? ''
+      const message = error.message?.toLowerCase() ?? ''
+
+      return ['err_network', 'econnrefused', 'etimedout', 'enotfound'].includes(code)
+        || message.includes('network error')
+        || message.includes('getaddrinfo')
+        || message.includes('socket hang up')
+        || message.includes('fetch failed')
+    }
+
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase()
+      return message.includes('network error')
+        || message.includes('getaddrinfo')
+        || message.includes('socket hang up')
+        || message.includes('fetch failed')
+    }
+
+    return false
+  }
+
+  private emitOfflineEvent(error: Error): void {
+    this.emit('offline', error)
+    if (this.listenerCount('error') > 0) {
+      this.emit('error', error)
+    }
+  }
+
+  private async executeWithRetry<T>(operation: () => Promise<T>, message: string, attempt: number): Promise<T> {
+    try {
+      return await operation()
+    } catch (error) {
+      if (this.isOfflineError(error) && attempt < this.maxRetryAttempts) {
+        const delay = this.retryDelays[attempt] ?? this.retryDelays[this.retryDelays.length - 1]
+        const offlineError = new Error('No internet connection. Retrying in a moment...')
+        this.emitOfflineEvent(offlineError)
+
+        await new Promise(resolve => setTimeout(resolve, delay))
+        return this.executeWithRetry(operation, message, attempt + 1)
+      }
+
+      if (this.isOfflineError(error)) {
+        const offlineError = new Error('No internet connection. Please check your network connection and try again.')
+        this.emitOfflineEvent(offlineError)
+        throw offlineError
+      }
+
+      throw await this.handleApiError(message, error)
+    }
+  }
+
   public async handleApiError(message: string, error: any): Promise<Error> {
+    if (this.isOfflineError(error)) {
+      const offlineError = new Error('No internet connection. Please check your network connection and try again.')
+      this.emitOfflineEvent(offlineError)
+      return offlineError
+    }
+
     let errorMsg = message
 
     if (error.response?.status === 401) {
