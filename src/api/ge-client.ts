@@ -465,7 +465,7 @@ export class SmartHQClient extends EventEmitter {
       return response.data
     } catch (error) {
       const tstamp = new Date().toLocaleString('en-US')
-      console.warn(chalk.white(`[${tstamp}]${chalk.yellow(` [SmartHQClient] Failing command:`)}`))
+      console.warn(chalk.white(`[${tstamp}]${chalk.yellow(` [SmartHQClient] Failing command:`)}`));
       console.warn(chalk.white(`[${tstamp}]${chalk.blue(JSON.stringify(request, null, 2))}`));
       return await this.handleApiError('Failed to send command', error)
     }
@@ -1098,7 +1098,6 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         await this.connect()
       } catch (error) {
-   //     if (this.isOfflineError(error) && this.reconnectAttempts < this.maxReconnectAttempts) {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           await new Promise(resolve => setTimeout(resolve, delay))
           this.debug(`Retrying attemptReconnect  (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) after delay of ${delay}ms`)
