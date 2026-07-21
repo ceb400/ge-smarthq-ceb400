@@ -465,8 +465,8 @@ export class SmartHQClient extends EventEmitter {
       return response.data
     } catch (error) {
       const tstamp = new Date().toLocaleString('en-US')
-      console.warn(chalk.white(`[${tstamp}]${chalk.yellow(` [SmartHQClient] Failing command:`)}`));
-      console.warn(chalk.white(`[${tstamp}]${chalk.blue(JSON.stringify(request, null, 2))}`));
+      console.warn(chalk.white(`[${tstamp}]${chalk.yellow(` [SmartHQClient] Failing command:`)}`))
+      console.warn(chalk.white(`[${tstamp}]${chalk.blue(JSON.stringify(request, null, 2))}`))
       return await this.handleApiError('Failed to send command', error)
     }
   }
