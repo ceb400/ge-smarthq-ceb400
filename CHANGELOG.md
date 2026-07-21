@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.1.1) (2026-07-21)
+
+## What's Changed
+* Failure of sendCommand(cmd) will now log the contents/format of the failing command to improve debugging.
+
 ## [1.1.0](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.1.0) (2026-07-11)
 
 ## What's Changed

@@ -108,7 +108,7 @@ export class SmartHQClient extends EventEmitter {
 
     this.httpClient = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 30000,
+      timeout: 60000,
     })
 
     this.tokenPath = path.join(process.cwd(), TOKEN_STORE)
@@ -353,7 +353,7 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         return await this.getDevices()
       } else {
-        throw this.handleApiError('Failed to get devices', error)
+        return await this.handleApiError('Failed to get devices', error)
       }
     }
   }
@@ -371,7 +371,7 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         return await this.getDevice(deviceId)
       } else {
-        throw this.handleApiError(`Failed to get device ${deviceId}`, error)
+        return await this.handleApiError(`Failed to get device ${deviceId}`, error)
       }
     }
   }
@@ -384,7 +384,7 @@ export class SmartHQClient extends EventEmitter {
       const response = await this.httpClient.get<DeviceCountResponse>('/v2/device/count', { params, headers: await this.httpHeaders() })
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to get device count', error)
+      return await this.handleApiError('Failed to get device count', error)
     }
   }
 
@@ -403,7 +403,7 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         return await this.getServiceDetails(deviceId, serviceId)
       } else {
-        throw this.handleApiError(
+        return await this.handleApiError(
           `Failed to get service details for ${deviceId}/${serviceId}`,
           error,
         )
@@ -426,7 +426,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(
+      return await this.handleApiError(
         `Failed to get service history for ${deviceId}/${serviceId}`,
         error,
       )
@@ -444,7 +444,7 @@ export class SmartHQClient extends EventEmitter {
     try {
       await this.httpClient.post(`/v2/device/${deviceId}/service/${serviceId}`, command, { headers: await this.httpHeaders() })
     } catch (error) {
-      throw this.handleApiError(
+      return await this.handleApiError(
         `Failed to update service ${serviceId} on device ${deviceId}`,
         error,
       )
@@ -464,7 +464,10 @@ export class SmartHQClient extends EventEmitter {
       this.debug(`Command outcome: ${JSON.stringify(response.data.outcome)}`)
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to send command', error)
+      const tstamp = new Date().toLocaleString('en-US')
+      console.warn(chalk.white(`[${tstamp}]${chalk.yellow(` [SmartHQClient] Failing command:`)}`))
+      console.warn(chalk.white(`[${tstamp}]${chalk.blue(JSON.stringify(request, null, 2))}`));
+      return await this.handleApiError('Failed to send command', error)
     }
   }
 
@@ -480,7 +483,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to send commands', error)
+      return await this.handleApiError('Failed to send commands', error)
     }
   }
 
@@ -495,7 +498,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get alerts for device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to get alerts for device ${deviceId}`, error)
     }
   }
 
@@ -513,7 +516,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get presence for device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to get presence for device ${deviceId}`, error)
     }
   }
 
@@ -532,7 +535,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get history for device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to get history for device ${deviceId}`, error)
     }
   }
 
@@ -551,7 +554,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get calculated history for device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to get calculated history for device ${deviceId}`, error)
     }
   }
 
@@ -566,7 +569,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to get recent alerts', error)
+      return await this.handleApiError('Failed to get recent alerts', error)
     }
   }
 
@@ -584,7 +587,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get alert report for ${alertType}`, error)
+      return await this.handleApiError(`Failed to get alert report for ${alertType}`, error)
     }
   }
 
@@ -599,7 +602,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to get alert count', error)
+      return await this.handleApiError('Failed to get alert count', error)
     }
   }
 
@@ -616,7 +619,7 @@ export class SmartHQClient extends EventEmitter {
         { headers: await this.httpHeaders() },
       )
     } catch (error) {
-      throw this.handleApiError(`Failed to delete alert for device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to delete alert for device ${deviceId}`, error)
     }
   }
 
@@ -635,7 +638,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to get favorites', error)
+      return await this.handleApiError('Failed to get favorites', error)
     }
   }
 
@@ -651,7 +654,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to save favorite', error)
+      return await this.handleApiError('Failed to save favorite', error)
     }
   }
 
@@ -670,7 +673,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to update favorite ${favoriteId}`, error)
+      return await this.handleApiError(`Failed to update favorite ${favoriteId}`, error)
     }
   }
 
@@ -688,7 +691,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to update favorite order', error)
+      return await this.handleApiError('Failed to update favorite order', error)
     }
   }
 
@@ -699,7 +702,7 @@ export class SmartHQClient extends EventEmitter {
     try {
       await this.httpClient.delete(`/v2/favorite/${favoriteId}`, { headers: await this.httpHeaders() })
     } catch (error) {
-      throw this.handleApiError(`Failed to delete favorite ${favoriteId}`, error)
+      return await this.handleApiError(`Failed to delete favorite ${favoriteId}`, error)
     }
   }
 
@@ -718,7 +721,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to get gateways', error)
+      return await this.handleApiError('Failed to get gateways', error)
     }
   }
 
@@ -734,7 +737,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError('Failed to add gateway', error)
+      return await this.handleApiError('Failed to add gateway', error)
     }
   }
 
@@ -746,7 +749,7 @@ export class SmartHQClient extends EventEmitter {
       const params = force ? { force: 'true' } : {}
       await this.httpClient.delete(`/v2/gateway/${gatewayId}`, { params, headers: await this.httpHeaders() })
     } catch (error) {
-      throw this.handleApiError(`Failed to remove gateway ${gatewayId}`, error)
+      return await this.handleApiError(`Failed to remove gateway ${gatewayId}`, error)
     }
   }
 
@@ -761,7 +764,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get tags for gateway ${gatewayId}`, error)
+      return await this.handleApiError(`Failed to get tags for gateway ${gatewayId}`, error)
     }
   }
 
@@ -780,7 +783,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to set tags for gateway ${gatewayId}`, error)
+      return await this.handleApiError(`Failed to set tags for gateway ${gatewayId}`, error)
     }
   }
 
@@ -794,7 +797,7 @@ export class SmartHQClient extends EventEmitter {
         headers: await this.httpHeaders(),
       })
     } catch (error) {
-      throw this.handleApiError(`Failed to delete tags for gateway ${gatewayId}`, error)
+      return await this.handleApiError(`Failed to delete tags for gateway ${gatewayId}`, error)
     }
   }
 
@@ -813,7 +816,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get settings for device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to get settings for device ${deviceId}`, error)
     }
   }
 
@@ -828,7 +831,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(
+      return await this.handleApiError(
         `Failed to get setting ${ruleId} for device ${deviceId}`,
         error,
       )
@@ -855,7 +858,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to set tag on device ${deviceId}`, error)
+      return await this.handleApiError(`Failed to set tag on device ${deviceId}`, error)
     }
   }
 
@@ -874,7 +877,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get values for tag ${tagName}`, error)
+      return await this.handleApiError(`Failed to get values for tag ${tagName}`, error)
     }
   }
 
@@ -893,7 +896,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get download URL for file ${fileId}`, error)
+      return await this.handleApiError(`Failed to get download URL for file ${fileId}`, error)
     }
   }
 
@@ -912,7 +915,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return res.data
     } catch (error) {
-      throw this.handleApiError('Failed to get schemas', error)
+      return await this.handleApiError('Failed to get schemas', error)
     }
   }
 
@@ -927,7 +930,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to get schema ${schemaName}`, error)
+      return await this.handleApiError(`Failed to get schema ${schemaName}`, error)
     }
   }
 
@@ -946,7 +949,7 @@ export class SmartHQClient extends EventEmitter {
       )
       return response.data
     } catch (error) {
-      throw this.handleApiError(`Failed to validate against schema ${schemaName}`, error)
+      return await this.handleApiError(`Failed to validate against schema ${schemaName}`, error)
     }
   }
 
@@ -1095,9 +1098,10 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         await this.connect()
       } catch (error) {
-        if (this.isOfflineError(error) && this.reconnectAttempts < this.maxReconnectAttempts) {
-          this.emitOfflineEvent(new Error('WebSocket offline. Retrying with backoff...'))
+   //     if (this.isOfflineError(error) && this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
           await new Promise(resolve => setTimeout(resolve, delay))
+          this.debug(`Retrying attemptReconnect  (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) after delay of ${delay}ms`)
           await this.attemptReconnect()
           return
         }
@@ -1126,7 +1130,7 @@ export class SmartHQClient extends EventEmitter {
           return await this.getWebSocketEndpoint()
         }
       }
-      throw this.handleApiError('Failed to get WebSocket endpoint', error)
+      return await this.handleApiError('Failed to get WebSocket endpoint', error)
     }
   }
 
@@ -1138,7 +1142,14 @@ export class SmartHQClient extends EventEmitter {
       const code = error.code?.toLowerCase() ?? ''
       const message = error.message?.toLowerCase() ?? ''
 
-      return ['err_network', 'econnrefused', 'etimedout', 'enotfound'].includes(code)
+      const offline: boolean = ['err_network', 'econnrefused', 'etimedout', 'enotfound'].includes(code)
+        || message.includes('network error')
+        || message.includes('getaddrinfo')
+        || message.includes('socket hang up')
+        || message.includes('fetch failed')
+      this.debug(`Internet offline: ${offline} - Code: ${code}, Message: ${message}`)
+
+      return ['err_network', 'econnrefused', 'etimedout', 'enotfound', 'econnaborted'].includes(code)
         || message.includes('network error')
         || message.includes('getaddrinfo')
         || message.includes('socket hang up')
@@ -1182,43 +1193,43 @@ export class SmartHQClient extends EventEmitter {
         throw offlineError
       }
 
-      throw await this.handleApiError(message, error)
+      return await this.handleApiError(message, error)
     }
   }
 
-  public async handleApiError(message: string, error: any): Promise<Error> {
+  private async handleApiError(message: string, error: any): Promise<never> {
     if (this.isOfflineError(error)) {
       const offlineError = new Error('No internet connection. Please check your network connection and try again.')
       this.emitOfflineEvent(offlineError)
-      return offlineError
+      throw offlineError
     }
 
     let errorMsg = message
 
     if (error.response?.status === 401) {
-      errorMsg += ' - Unauthorized (invalid access token)'
+      errorMsg += ' - 401 Unauthorized (invalid access token)'
       await this.refreshAccessToken().catch((refreshError) => {
         this.debug(`Token refresh failed: ${refreshError}`)
         this.emit('error', new Error(`Token refresh failed: ${refreshError}`))
       })
     } else if (error.response?.status === 400) {
-      errorMsg += ' - Bad Request (missing or invalid parameters)'
+      errorMsg += ' - 400 Bad Request (missing or invalid parameters)'
     } else if (error.response?.status === 403) {
-      errorMsg += ' - Forbidden (insufficient permissions)'
+      errorMsg += ' - 403 Forbidden (insufficient permissions)'
     } else if (error.response?.status === 404) {
-      errorMsg += ' - Not found'
+      errorMsg += ' - 404 Not found'
     } else if (error.response?.status === 408) {
-      errorMsg += ' - Request Timeout'
+      errorMsg += ' - 408 Request Timeout'
     } else if (error.response?.status === 409) {
-      errorMsg += ' - Device not removable)'
+      errorMsg += ' - 409 Device not removable)'
     } else if (error.response?.status === 412) {
-      errorMsg += ' - Gateway offline or tag managed at gateway level'
+      errorMsg += ' - 412 Gateway offline or tag managed at gateway level'
     } else if (error.response?.status === 429) {
-      errorMsg += ' - Rate limited'
+      errorMsg += ' - 429 Rate limited'
     } else if (error.message) {
       errorMsg += ` - ${error.message}`
     }
-    return new Error(errorMsg)
+    throw new Error(errorMsg)
   }
 
   /**
