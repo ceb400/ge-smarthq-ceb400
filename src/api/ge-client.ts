@@ -340,75 +340,47 @@ export class SmartHQClient extends EventEmitter {
    * Get list of devices with optional filtering and pagination
    */
   async getDevices(): Promise<DeviceListResponse> {
-    try {
-      const response = await this.httpClient.get<DeviceListResponse>('/v2/device', { headers: await this.httpHeaders() },
-      )
-      // Cache devices
+    return this.callWithAuthRetry(async () => {
+      const response = await this.httpClient.get<DeviceListResponse>('/v2/device', { headers: await this.httpHeaders() })
       for (const device of response.data.devices) {
         this.devices.set(device.deviceId, device)
       }
       return response.data
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        await this.refreshAccessToken()
-        return await this.getDevices()
-      } else {
-        return await this.handleApiError('Failed to get devices', error)
-      }
-    }
+    }, 'Failed to get devices')
   }
 
   /**
    * Get a single device by deviceId
    */
   async getDevice(deviceId: string): Promise<Device> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<Device>(`/v2/device/${deviceId}`, { headers: await this.httpHeaders() })
       this.devices.set(deviceId, response.data)
       return response.data
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        await this.refreshAccessToken()
-        return await this.getDevice(deviceId)
-      } else {
-        return await this.handleApiError(`Failed to get device ${deviceId}`, error)
-      }
-    }
+    }, `Failed to get device ${deviceId}`)
   }
 
   /**
    * Get number of devices in account with optional filtering
    */
   async getDeviceCount(params?: Record<string, any>): Promise<DeviceCountResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<DeviceCountResponse>('/v2/device/count', { params, headers: await this.httpHeaders() })
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to get device count', error)
-    }
+    }, 'Failed to get device count')
   }
 
   /**
    * Get service details for a device
    */
   async getServiceDetails(deviceId: string, serviceId: string): Promise<ServiceDetailsResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<ServiceDetailsResponse>(
         `/v2/device/${deviceId}/service/${serviceId}`,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        await this.refreshAccessToken()
-        return await this.getServiceDetails(deviceId, serviceId)
-      } else {
-        return await this.handleApiError(
-          `Failed to get service details for ${deviceId}/${serviceId}`,
-          error,
-        )
-      }
-    }
+    }, `Failed to get service details for ${deviceId}/${serviceId}`)
   }
 
   /**
@@ -419,18 +391,13 @@ export class SmartHQClient extends EventEmitter {
     serviceId: string,
     params?: Record<string, any>,
   ): Promise<ServiceHistoryResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<ServiceHistoryResponse>(
         `/v2/device/${deviceId}/service/${serviceId}/history`,
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(
-        `Failed to get service history for ${deviceId}/${serviceId}`,
-        error,
-      )
-    }
+    }, `Failed to get service history for ${deviceId}/${serviceId}`)
   }
 
   /**
@@ -441,21 +408,16 @@ export class SmartHQClient extends EventEmitter {
     serviceId: string,
     command: Record<string, any>,
   ): Promise<void> {
-    try {
+    return this.callWithAuthRetry(async () => {
       await this.httpClient.post(`/v2/device/${deviceId}/service/${serviceId}`, command, { headers: await this.httpHeaders() })
-    } catch (error) {
-      return await this.handleApiError(
-        `Failed to update service ${serviceId} on device ${deviceId}`,
-        error,
-      )
-    }
+    }, `Failed to update service ${serviceId} on device ${deviceId}`)
   }
 
   /**
    * Send command to device.
    */
   async sendCommand(request: SendCommandRequest): Promise<SendCommandSuccessResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SendCommandSuccessResponse>(
         '/v2/command',
         request,
@@ -463,43 +425,34 @@ export class SmartHQClient extends EventEmitter {
       )
       this.debug(`Command outcome: ${JSON.stringify(response.data.outcome)}`)
       return response.data
-    } catch (error) {
-      const tstamp = new Date().toLocaleString('en-US')
-      console.warn(chalk.white(`[${tstamp}]${chalk.yellow(` [SmartHQClient] Failing command:`)}`))
-      console.warn(chalk.white(`[${tstamp}]${chalk.blue(JSON.stringify(request, null, 2))}`))
-      return await this.handleApiError('Failed to send command', error)
-    }
+    }, 'Failed to send command')
   }
 
   /**
    * Send commands to devices
    */
   async sendCommands(request: SendCommandsRequest): Promise<SendCommandsSuccessResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SendCommandsSuccessResponse>(
         '/v2/commands',
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to send commands', error)
-    }
+    }, 'Failed to send commands')
   }
 
   /**
    * Get alerts for a device
    */
   async getDeviceAlerts(deviceId: string, params?: Record<string, any>): Promise<DeviceAlertsResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<DeviceAlertsResponse>(
         `/v2/device/${deviceId}/alert`,
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get alerts for device ${deviceId}`, error)
-    }
+    }, `Failed to get alerts for device ${deviceId}`)
   }
 
   /**
@@ -509,15 +462,13 @@ export class SmartHQClient extends EventEmitter {
     deviceId: string,
     params?: Record<string, any>,
   ): Promise<DevicePresenceResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<DevicePresenceResponse>(
         `/v2/device/${deviceId}/presence`,
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get presence for device ${deviceId}`, error)
-    }
+    }, `Failed to get presence for device ${deviceId}`)
   }
 
   /**
@@ -527,16 +478,14 @@ export class SmartHQClient extends EventEmitter {
     deviceId: string,
     request: Record<string, any>,
   ): Promise<DeviceHistoryLineResponse | DeviceHistoryRawResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post(
         `/v2/device/${deviceId}/history`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get history for device ${deviceId}`, error)
-    }
+    }, `Failed to get history for device ${deviceId}`)
   }
 
   /**
@@ -546,31 +495,27 @@ export class SmartHQClient extends EventEmitter {
     deviceId: string,
     request: CalculatedDeviceHistoryRequest,
   ): Promise<CalculatedDeviceHistoryLineResponse | CalculatedDeviceHistoryRawResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post(
         `/v2/device/${deviceId}/history/calculated`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get calculated history for device ${deviceId}`, error)
-    }
+    }, `Failed to get calculated history for device ${deviceId}`)
   }
 
   /**
    * Get recent alerts across all devices
    */
   async getRecentAlerts(params?: Record<string, any>): Promise<RecentAlertResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<RecentAlertResponse>(
         '/v2/alert/recent',
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to get recent alerts', error)
-    }
+    }, 'Failed to get recent alerts')
   }
 
   /**
@@ -580,30 +525,26 @@ export class SmartHQClient extends EventEmitter {
     alertType: string,
     params?: Record<string, any>,
   ): Promise<AlertReport> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<AlertReport>(
         `/v2/alert/${alertType}/report`,
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get alert report for ${alertType}`, error)
-    }
+    }, `Failed to get alert report for ${alertType}`)
   }
 
   /**
    * Get alert count with optional filtering
    */
   async getAlertCount(params?: Record<string, any>): Promise<AlertCountResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<AlertCountResponse>(
         '/v2/alert/count',
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to get alert count', error)
-    }
+    }, 'Failed to get alert count')
   }
 
   /**
@@ -613,14 +554,12 @@ export class SmartHQClient extends EventEmitter {
     deviceId: string,
     alertType: string,
   ): Promise<void> {
-    try {
+    return this.callWithAuthRetry(async () => {
       await this.httpClient.delete(
         `/v2/device/${deviceId}/alert/${alertType}`,
         { headers: await this.httpHeaders() },
       )
-    } catch (error) {
-      return await this.handleApiError(`Failed to delete alert for device ${deviceId}`, error)
-    }
+    }, `Failed to delete alert for device ${deviceId}`)
   }
 
   // ============================================================================
@@ -631,31 +570,27 @@ export class SmartHQClient extends EventEmitter {
    * Get all favorites
    */
   async getFavorites(params?: Record<string, any>): Promise<FavoritesResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<FavoritesResponse>(
         '/v2/favorite',
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to get favorites', error)
-    }
+    }, 'Failed to get favorites')
   }
 
   /**
    * Create a new favorite
    */
   async saveFavorite(request: SaveFavoriteRequest): Promise<SaveFavoriteResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SaveFavoriteResponse>(
         '/v2/favorite',
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to save favorite', error)
-    }
+    }, 'Failed to save favorite')
   }
 
   /**
@@ -665,16 +600,14 @@ export class SmartHQClient extends EventEmitter {
     favoriteId: string,
     request: UpdateFavoriteRequest,
   ): Promise<UpdateFavoriteResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.put<UpdateFavoriteResponse>(
         `/v2/favorite/${favoriteId}`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to update favorite ${favoriteId}`, error)
-    }
+    }, `Failed to update favorite ${favoriteId}`)
   }
 
   /**
@@ -683,27 +616,23 @@ export class SmartHQClient extends EventEmitter {
   async updateFavoriteOrder(
     request: UpdateFavoriteOrderRequest,
   ): Promise<UpdateFavoriteOrderResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.put<UpdateFavoriteOrderResponse>(
         '/v2/favorite/order',
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to update favorite order', error)
-    }
+    }, 'Failed to update favorite order')
   }
 
   /**
    * Delete a favorite
    */
   async deleteFavorite(favoriteId: string): Promise<void> {
-    try {
+    return this.callWithAuthRetry(async () => {
       await this.httpClient.delete(`/v2/favorite/${favoriteId}`, { headers: await this.httpHeaders() })
-    } catch (error) {
-      return await this.handleApiError(`Failed to delete favorite ${favoriteId}`, error)
-    }
+    }, `Failed to delete favorite ${favoriteId}`)
   }
 
   // ============================================================================
@@ -714,58 +643,50 @@ export class SmartHQClient extends EventEmitter {
    * Get all gateways
    */
   async getGateways(params?: Record<string, any>): Promise<GatewayListResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<GatewayListResponse>(
         '/v2/gateway',
         { params, headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to get gateways', error)
-    }
+    }, 'Failed to get gateways')
   }
 
   /**
    * Add a new gateway
    */
   async addGateway(request: GatewayRequest): Promise<GatewayResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<GatewayResponse>(
         '/v2/gateway',
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError('Failed to add gateway', error)
-    }
+    }, 'Failed to add gateway')
   }
 
   /**
    * Remove a gateway from the account
    */
   async removeGateway(gatewayId: string, force: boolean = false): Promise<void> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const params = force ? { force: 'true' } : {}
       await this.httpClient.delete(`/v2/gateway/${gatewayId}`, { params, headers: await this.httpHeaders() })
-    } catch (error) {
-      return await this.handleApiError(`Failed to remove gateway ${gatewayId}`, error)
-    }
+    }, `Failed to remove gateway ${gatewayId}`)
   }
 
   /**
    * Get gateway tags
    */
   async getGatewayTags(gatewayId: string): Promise<GatewayTagsResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<GatewayTagsResponse>(
         `/v2/gateway/${gatewayId}/tag`,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get tags for gateway ${gatewayId}`, error)
-    }
+    }, `Failed to get tags for gateway ${gatewayId}`)
   }
 
   /**
@@ -775,30 +696,26 @@ export class SmartHQClient extends EventEmitter {
     gatewayId: string,
     request: GatewayTagsRequest,
   ): Promise<GatewayTagsManageResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<GatewayTagsManageResponse>(
         `/v2/gateway/${gatewayId}/tag`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to set tags for gateway ${gatewayId}`, error)
-    }
+    }, `Failed to set tags for gateway ${gatewayId}`)
   }
 
   /**
    * Delete gateway tags
    */
   async deleteGatewayTags(gatewayId: string, tagNames: string[]): Promise<void> {
-    try {
+    return this.callWithAuthRetry(async () => {
       await this.httpClient.delete(`/v2/gateway/${gatewayId}/tag`, {
         data: { tagNames },
         headers: await this.httpHeaders(),
       })
-    } catch (error) {
-      return await this.handleApiError(`Failed to delete tags for gateway ${gatewayId}`, error)
-    }
+    }, `Failed to delete tags for gateway ${gatewayId}`)
   }
 
   // ============================================================================
@@ -809,33 +726,26 @@ export class SmartHQClient extends EventEmitter {
    * Get device settings
    */
   async getDeviceSettings(deviceId: string): Promise<DeviceSetting[]> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<DeviceSetting[]>(
         `/v2/device/${deviceId}/setting`,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get settings for device ${deviceId}`, error)
-    }
+    }, `Failed to get settings for device ${deviceId}`)
   }
 
   /**
    * Get a specific device setting
    */
   async getDeviceSetting(deviceId: string, ruleId: string): Promise<DeviceSettingResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<DeviceSettingResponse>(
         `/v2/device/${deviceId}/setting/${ruleId}`,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(
-        `Failed to get setting ${ruleId} for device ${deviceId}`,
-        error,
-      )
-    }
+    }, `Failed to get setting ${ruleId} for device ${deviceId}`)
   }
 
   // ============================================================================
@@ -850,16 +760,14 @@ export class SmartHQClient extends EventEmitter {
     tagName: string,
     request: DeviceSetTagRequest,
   ): Promise<DeviceSetTagResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<DeviceSetTagResponse>(
         `/v2/device/${deviceId}/tag/${tagName}`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to set tag on device ${deviceId}`, error)
-    }
+    }, `Failed to set tag on device ${deviceId}`)
   }
 
   /**
@@ -869,16 +777,14 @@ export class SmartHQClient extends EventEmitter {
     tagName: string,
     request?: GetTagValuesRequest,
   ): Promise<GetTagValuesResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<GetTagValuesResponse>(
         `/v2/tag/${tagName}/value`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get values for tag ${tagName}`, error)
-    }
+    }, `Failed to get values for tag ${tagName}`)
   }
 
   // ============================================================================
@@ -889,15 +795,13 @@ export class SmartHQClient extends EventEmitter {
    * Get presigned S3 URL for file download
    */
   async getFileDownloadUrl(fileId: string): Promise<FileDownloadResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<FileDownloadResponse>(
         `/v2/file/${fileId}`,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get download URL for file ${fileId}`, error)
-    }
+    }, `Failed to get download URL for file ${fileId}`)
   }
 
   // ============================================================================
@@ -908,30 +812,26 @@ export class SmartHQClient extends EventEmitter {
    * Get list of available JSON schemas
    */
   async getSchemas(): Promise<SchemaListResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const res = await this.httpClient.get<SchemaListResponse>(
         '/v2/schema',
         { headers: await this.httpHeaders() },
       )
       return res.data
-    } catch (error) {
-      return await this.handleApiError('Failed to get schemas', error)
-    }
+    }, 'Failed to get schemas')
   }
 
   /**
    * Get a specific JSON schema by name
    */
   async getSchema(schemaName: string): Promise<SchemaResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.get<SchemaResponse>(
         `/v2/schema/${schemaName}`,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to get schema ${schemaName}`, error)
-    }
+    }, `Failed to get schema ${schemaName}`)
   }
 
   /**
@@ -941,16 +841,14 @@ export class SmartHQClient extends EventEmitter {
     schemaName: string,
     request: Record<string, any>,
   ): Promise<SchemaPolicyValidationResponse> {
-    try {
+    return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SchemaPolicyValidationResponse>(
         `/v2/schema/${schemaName}`,
         request,
         { headers: await this.httpHeaders() },
       )
       return response.data
-    } catch (error) {
-      return await this.handleApiError(`Failed to validate against schema ${schemaName}`, error)
-    }
+    }, `Failed to validate against schema ${schemaName}`)
   }
 
   /**
@@ -1099,8 +997,7 @@ export class SmartHQClient extends EventEmitter {
         await this.connect()
       } catch (error) {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          await new Promise(resolve => setTimeout(resolve, delay))
-          this.debug(`Retrying attemptReconnect  (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) after delay of ${delay}ms`)
+          this.debug(`Retrying attemptReconnect (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) after delay of ${delay}ms`)
           await this.attemptReconnect()
           return
         }
@@ -1118,19 +1015,10 @@ export class SmartHQClient extends EventEmitter {
    * Get the WebSocket endpoint URL
    */
   private async getWebSocketEndpoint(): Promise<WebsocketEndpoint> {
-    try {
-      const response = await this.httpClient.get<WebsocketEndpoint>('/v2/websocket', { headers: await this.httpHeaders() },
-      )
+    return this.callWithAuthRetry(async () => {
+      const response = await this.httpClient.get<WebsocketEndpoint>('/v2/websocket', { headers: await this.httpHeaders() })
       return response.data
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          await this.refreshAccessToken()
-          return await this.getWebSocketEndpoint()
-        }
-      }
-      return await this.handleApiError('Failed to get WebSocket endpoint', error)
-    }
+    }, 'Failed to get WebSocket endpoint')
   }
 
   /**
@@ -1148,7 +1036,7 @@ export class SmartHQClient extends EventEmitter {
         || message.includes('fetch failed')
       this.debug(`Internet offline: ${offline} - Code: ${code}, Message: ${message}`)
 
-      return ['err_network', 'econnrefused', 'etimedout', 'enotfound', 'econnaborted'].includes(code)
+      return ['err_network', 'econnrefused', 'etimedout', 'enotfound'].includes(code)
         || message.includes('network error')
         || message.includes('getaddrinfo')
         || message.includes('socket hang up')
@@ -1189,7 +1077,26 @@ export class SmartHQClient extends EventEmitter {
       if (this.isOfflineError(error)) {
         const offlineError = new Error('No internet connection. Please check your network connection and try again.')
         this.emitOfflineEvent(offlineError)
-        throw offlineError
+      }
+
+      return await this.handleApiError(message, error)
+    }
+  }
+
+  /**
+   * Call an operation and if it fails with 401 attempt a single refresh+retry.
+   */
+  private async callWithAuthRetry<T>(operation: () => Promise<T>, message: string): Promise<T> {
+    try {
+      return await operation()
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        try {
+          await this.refreshAccessToken()
+          return await operation()
+        } catch (refreshErr) {
+          return await this.handleApiError(message, error)
+        }
       }
 
       return await this.handleApiError(message, error)
@@ -1200,17 +1107,15 @@ export class SmartHQClient extends EventEmitter {
     if (this.isOfflineError(error)) {
       const offlineError = new Error('No internet connection. Please check your network connection and try again.')
       this.emitOfflineEvent(offlineError)
-      throw offlineError
     }
 
     let errorMsg = message
 
     if (error.response?.status === 401) {
       errorMsg += ' - 401 Unauthorized (invalid access token)'
-      await this.refreshAccessToken().catch((refreshError) => {
-        this.debug(`Token refresh failed: ${refreshError}`)
-        this.emit('error', new Error(`Token refresh failed: ${refreshError}`))
-      })
+      // Do not automatically refresh here; callers that can retry should handle token refresh
+      // Emit a typed error event so listeners can react (e.g., attempt re-authentication)
+      this.emit('error', new Error(errorMsg))
     } else if (error.response?.status === 400) {
       errorMsg += ' - 400 Bad Request (missing or invalid parameters)'
     } else if (error.response?.status === 403) {
@@ -1228,7 +1133,15 @@ export class SmartHQClient extends EventEmitter {
     } else if (error.message) {
       errorMsg += ` - ${error.message}`
     }
-    throw new Error(errorMsg)
+    // Preserve original error as cause when available (Node.js supports Error options)
+    const outErr: any = new Error(errorMsg)
+    try {
+      ;(outErr as any).cause = error
+    } catch {
+      // no-op
+    }
+
+    throw outErr
   }
 
   /**
