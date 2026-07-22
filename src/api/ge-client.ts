@@ -996,6 +996,7 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         await this.connect()
       } catch (error) {
+   //     if (this.isOfflineError(error) && this.reconnectAttempts < this.maxReconnectAttempts) {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.debug(`Retrying attemptReconnect (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) after delay of ${delay}ms`)
           await this.attemptReconnect()
