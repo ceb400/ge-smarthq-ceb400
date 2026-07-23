@@ -2,10 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.1.2) (2026-07-23)
+
+## What's Changed
+* Decrease verbosity of log entries in debug mode.
+* Display the body of commands sent via the API in a formatted manner. Helps with developing support for new devices.
+* Improve error messages and error handling and retry logic
+
 ## [1.1.1](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.1.1) (2026-07-21)
 
 ## What's Changed
 * Failure of sendCommand(cmd) will now log the contents/format of the failing command to improve debugging.
+
 
 ## [1.1.0](https://github.com/ceb400/ge-smarthq-ceb400/releases/tag/v1.1.0) (2026-07-11)
 
