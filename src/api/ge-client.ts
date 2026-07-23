@@ -142,7 +142,7 @@ export class SmartHQClient extends EventEmitter {
    * Refresh the access token using refresh_token
    */
   async refreshAccessToken() {
-    //this.debug('Refreshing access token using staticrefresh_token')
+    // this.debug('Refreshing access token using staticrefresh_token')
     return await this.getAccessToken({
       grant_type: 'refresh_token',
       client_id: this.config.clientId,
@@ -286,7 +286,7 @@ export class SmartHQClient extends EventEmitter {
       this.websocket.on('open', () => {
         this.reconnectAttempts = 0
         this.emit('connected')
-        //this.debug('WebSocket connection established')
+        // this.debug('WebSocket connection established')
         this.setupPingPong()
         this.configureWebSocket()
       })
@@ -296,7 +296,7 @@ export class SmartHQClient extends EventEmitter {
       })
 
       this.websocket.on('close', () => {
-        //this.debug('WebSocket connection closed')
+        // this.debug('WebSocket connection closed')
         this.emit('disconnected')
         this.clearPingPong()
         this.attemptReconnect()
@@ -993,7 +993,7 @@ export class SmartHQClient extends EventEmitter {
       delay,
     })
 
-    //this.debug(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
+    // this.debug(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
 
     setTimeout(async () => {
       try {
