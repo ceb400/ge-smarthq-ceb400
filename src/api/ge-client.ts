@@ -418,8 +418,8 @@ export class SmartHQClient extends EventEmitter {
    */
   async sendCommand(request: SendCommandRequest): Promise<SendCommandSuccessResponse> {
     // To assist with debugging when developing support for new appliances
-      this.debug('Command body for sendCommand =')
-      this.debug(JSON.stringify(request, null, 2))
+    this.debug('Command body for sendCommand =')
+    this.debug(JSON.stringify(request, null, 2))
     return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SendCommandSuccessResponse>(
         '/v2/command',
@@ -999,7 +999,6 @@ export class SmartHQClient extends EventEmitter {
         await this.refreshAccessToken()
         await this.connect()
       } catch (error) {
-   //     if (this.isOfflineError(error) && this.reconnectAttempts < this.maxReconnectAttempts) {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.debug(`Retrying attemptReconnect (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}) after delay of ${delay}ms`)
           await this.attemptReconnect()
