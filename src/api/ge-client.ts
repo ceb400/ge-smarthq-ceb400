@@ -418,9 +418,8 @@ export class SmartHQClient extends EventEmitter {
    */
   async sendCommand(request: SendCommandRequest): Promise<SendCommandSuccessResponse> {
     // To assist with debugging when developing support for new appliances
-    this.debug('Command body for sendCommand =');
-    this.debug(JSON.stringify(request, null, 2));
-    
+      this.debug('Command body for sendCommand =')
+      this.debug(JSON.stringify(request, null, 2))
     return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SendCommandSuccessResponse>(
         '/v2/command',
