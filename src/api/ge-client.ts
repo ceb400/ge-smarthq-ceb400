@@ -142,7 +142,7 @@ export class SmartHQClient extends EventEmitter {
    * Refresh the access token using refresh_token
    */
   async refreshAccessToken() {
-    this.debug('Refreshing access token using staticrefresh_token')
+    //this.debug('Refreshing access token using staticrefresh_token')
     return await this.getAccessToken({
       grant_type: 'refresh_token',
       client_id: this.config.clientId,
@@ -286,7 +286,7 @@ export class SmartHQClient extends EventEmitter {
       this.websocket.on('open', () => {
         this.reconnectAttempts = 0
         this.emit('connected')
-        this.debug('WebSocket connection established')
+        //this.debug('WebSocket connection established')
         this.setupPingPong()
         this.configureWebSocket()
       })
@@ -296,7 +296,7 @@ export class SmartHQClient extends EventEmitter {
       })
 
       this.websocket.on('close', () => {
-        this.debug('WebSocket connection closed')
+        //this.debug('WebSocket connection closed')
         this.emit('disconnected')
         this.clearPingPong()
         this.attemptReconnect()
@@ -417,6 +417,10 @@ export class SmartHQClient extends EventEmitter {
    * Send command to device.
    */
   async sendCommand(request: SendCommandRequest): Promise<SendCommandSuccessResponse> {
+    // To assist with debugging when developing support for new appliances
+    this.debug('Command body for sendCommand =');
+    this.debug(JSON.stringify(request, null, 2));
+    
     return this.callWithAuthRetry(async () => {
       const response = await this.httpClient.post<SendCommandSuccessResponse>(
         '/v2/command',
@@ -989,7 +993,7 @@ export class SmartHQClient extends EventEmitter {
       delay,
     })
 
-    this.debug(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
+    //this.debug(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
 
     setTimeout(async () => {
       try {
@@ -1030,14 +1034,14 @@ export class SmartHQClient extends EventEmitter {
       const code = error.code?.toLowerCase() ?? ''
       const message = error.message?.toLowerCase() ?? ''
 
-      const offline: boolean = ['err_network', 'econnrefused', 'etimedout', 'enotfound'].includes(code)
+      const offline: boolean = ['err_network', 'enotfound'].includes(code)
         || message.includes('network error')
         || message.includes('getaddrinfo')
         || message.includes('socket hang up')
         || message.includes('fetch failed')
       this.debug(`Internet offline: ${offline} - Code: ${code}, Message: ${message}`)
 
-      return ['err_network', 'econnrefused', 'etimedout', 'enotfound'].includes(code)
+      return ['err_network', 'enotfound'].includes(code)
         || message.includes('network error')
         || message.includes('getaddrinfo')
         || message.includes('socket hang up')
